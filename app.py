@@ -25,6 +25,93 @@ st.set_page_config(
     initial_sidebar_state="expanded"
 )
 
+# Inject Binance Dark Design System global CSS
+st.markdown("""
+<style>
+    /* Global Background and Fonts */
+    .stApp {
+        background-color: #0b0e11 !important;
+        color: #eaecef !important;
+    }
+    
+    /* Text Color Resets */
+    h1, h2, h3, h4, h5, h6, p, span, label, li, div, small, select, button {
+        color: #eaecef !important;
+        font-family: "BinanceNova", "BinancePlex", -apple-system, BlinkMacSystemFont, sans-serif !important;
+    }
+    
+    /* Subtitles and headers coloring (Gold accent for main elements) */
+    h1, h2 {
+        color: #fcd535 !important;
+    }
+    
+    /* Input Fields (Binance Surface Dark) */
+    div[data-baseweb="input"] {
+        background-color: #1e2329 !important;
+        border: 1px solid #2b3139 !important;
+        border-radius: 8px !important;
+    }
+    input {
+        color: #eaecef !important;
+        background-color: #1e2329 !important;
+    }
+    
+    /* Sidebar Overrides */
+    section[data-testid="stSidebar"] {
+        background-color: #0b0e11 !important;
+        border-right: 1px solid #2b3139 !important;
+    }
+    section[data-testid="stSidebar"] h1, section[data-testid="stSidebar"] h2, section[data-testid="stSidebar"] h3 {
+        color: #fcd535 !important;
+    }
+    
+    /* Button Custom styling (Pill / Primary Yellow CTA) */
+    button[kind="secondary"] {
+        background-color: #fcd535 !important;
+        color: #181a20 !important;
+        border: none !important;
+        font-weight: 600 !important;
+        border-radius: 8px !important;
+        padding: 8px 16px !important;
+        transition: background 0.2s ease-in-out !important;
+    }
+    button[kind="secondary"]:hover {
+        background-color: #f0b90b !important;
+        color: #181a20 !important;
+    }
+    button[kind="secondary"]:active {
+        background-color: #d8a308 !important;
+    }
+    
+    /* Links and Tabs Styling */
+    div[data-baseweb="tab-list"] {
+        background-color: #0b0e11 !important;
+        border-bottom: 1px solid #2b3139 !important;
+    }
+    button[data-baseweb="tab"] {
+        background-color: #0b0e11 !important;
+        color: #707a8a !important;
+        font-weight: 500 !important;
+    }
+    button[data-baseweb="tab"][aria-selected="true"] {
+        color: #fcd535 !important;
+        border-bottom: 2px solid #fcd535 !important;
+    }
+    
+    /* Metrics panel decoration */
+    div[data-testid="stMetricValue"] {
+        color: #fcd535 !important;
+        font-weight: 700 !important;
+    }
+    
+    /* Block container margins */
+    .block-container {
+        padding-top: 2rem !important;
+        padding-bottom: 2rem !important;
+    }
+</style>
+""", unsafe_allow_html=True)
+
 st.title("📈 AI 기반 기업 재무 및 동향 분석 시스템")
 
 # API key validation helper

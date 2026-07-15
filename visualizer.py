@@ -63,9 +63,9 @@ def render_dashboard(data: dict):
             y=revenue_b,
             mode='lines+markers',
             name='매출액 (Revenue, $B)',
-            line=dict(color='#1f77b4', width=3),
-            marker=dict(size=7),
-            connectgaps=False # Gap handling (does not connect N/A points)
+            line=dict(color='#fcd535', width=3),
+            marker=dict(size=7, color='#fcd535'),
+            connectgaps=False
         ))
         
         # Net Income trace
@@ -74,9 +74,9 @@ def render_dashboard(data: dict):
             y=net_income_b,
             mode='lines+markers',
             name='순이익 (Net Income, $B)',
-            line=dict(color='#ff7f0e', width=3),
-            marker=dict(size=7),
-            connectgaps=False # Gap handling (does not connect N/A points)
+            line=dict(color='#eaecef', width=3),
+            marker=dict(size=7, color='#eaecef'),
+            connectgaps=False
         ))
 
         # Add vertical line overlays & hover annotations for core events
@@ -97,15 +97,15 @@ def render_dashboard(data: dict):
             
             # Split placement: Good near the top, Bad near the bottom
             if sentiment == "Good":
-                color = "#1f77b4" # Blue
+                color = "#0ecb81" # Binance Trading Green
                 y_pos = 0.92
                 text_badge = f"➕ {q_str} ({ev_date[5:]})"
             elif sentiment == "Bad":
-                color = "#d62728" # Red
+                color = "#f6465d" # Binance Trading Red
                 y_pos = 0.08
                 text_badge = f"➖ {q_str} ({ev_date[5:]})"
             else:
-                color = "#7f7f7f" # Grey
+                color = "#707a8a" # Binance Muted Gray
                 y_pos = 0.50
                 text_badge = f"🟢 {q_str} ({ev_date[5:]})"
                 
@@ -134,12 +134,32 @@ def render_dashboard(data: dict):
             )
 
         fig.update_layout(
-            xaxis=dict(title="공시 종료일 (Period End Date)", type='date'),
-            yaxis=dict(title="금액 (십억 달러, $B)"),
-            legend=dict(orientation="h", yanchor="bottom", y=1.08, xanchor="right", x=1),
+            xaxis=dict(
+                title="공시 종료일 (Period End Date)", 
+                type='date',
+                gridcolor="#2b3139",
+                linecolor="#2b3139",
+                tickfont=dict(color="#eaecef")
+            ),
+            yaxis=dict(
+                title="금액 (십억 달러, $B)",
+                gridcolor="#2b3139",
+                linecolor="#2b3139",
+                tickfont=dict(color="#eaecef")
+            ),
+            legend=dict(
+                orientation="h", 
+                yanchor="bottom", 
+                y=1.08, 
+                xanchor="right", 
+                x=1,
+                font=dict(color="#eaecef")
+            ),
             margin=dict(l=40, r=40, t=60, b=40),
             hovermode="x unified",
-            template="plotly_white"
+            template="plotly_dark",
+            paper_bgcolor="#0b0e11",
+            plot_bgcolor="#0b0e11"
         )
         st.plotly_chart(fig, use_container_width=True)
         
@@ -220,18 +240,19 @@ def render_dashboard(data: dict):
         for item in news_list:
             card_html = f"""
             <div style="
-                border: 1px solid #eef2f3;
-                border-radius: 8px;
-                padding: 12px;
-                margin-bottom: 8px;
-                background-color: #fafbfc;
-                box-shadow: 1px 1px 4px rgba(0,0,0,0.02);
+                border: 1px solid #2b3139;
+                border-left: 4px solid {title_color};
+                border-radius: 12px;
+                padding: 16px;
+                margin-bottom: 12px;
+                background-color: #1e2329;
+                box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
             ">
-                <div style="display: flex; justify-content: space-between; font-size: 0.78em; color: #777; margin-bottom: 4px;">
-                    <span><b>{item.get('quarter', 'N/A')}</b> ({item.get('date', 'N/A')})</span>
-                    <span>출처: {item.get('source')}</span>
+                <div style="display: flex; justify-content: space-between; font-size: 0.78em; color: #707a8a; margin-bottom: 6px;">
+                    <span style="color: #707a8a !important;"><b>{item.get('quarter', 'N/A')}</b> ({item.get('date', 'N/A')})</span>
+                    <span style="color: #707a8a !important;">출처: {item.get('source')}</span>
                 </div>
-                <h5 style="margin: 4px 0 4px 0; color: {title_color}; line-height: 1.35; font-size: 0.95em;">{item.get('summary')}</h5>
+                <h5 style="margin: 4px 0 4px 0; color: #eaecef !important; line-height: 1.4; font-size: 0.95em; font-weight: 500;">{item.get('summary')}</h5>
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
@@ -254,9 +275,9 @@ def render_dashboard(data: dict):
         # 2-column layout to contrast Good vs Bad aggressively (no Neutral column)
         col_good, col_bad = st.columns(2)
         with col_good:
-            render_news_column(good_news, "🔵", "#1f77b4", "호재 (Good)")
+            render_news_column(good_news, "🟢", "#0ecb81", "핵심 호재 (Good)")
         with col_bad:
-            render_news_column(bad_news, "🔴", "#d62728", "악재 (Bad)")
+            render_news_column(bad_news, "🔴", "#f6465d", "핵심 악재 (Bad)")
 
     with tab_all:
         render_year_tab(trends_good_bad)
