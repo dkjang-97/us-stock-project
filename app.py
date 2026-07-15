@@ -13,6 +13,7 @@ from tasks import (
     generate_financial_summary_ai,
     verify_and_retry_block_cached
 )
+from ai_verify import check_local_bias, local_fix
 from visualizer import render_dashboard
 
 # Load environment variables
@@ -118,16 +119,17 @@ if st.button("📊 분석 시작"):
                 
                 verified_fin_block, _ = verify_and_retry_block_cached(financial_summary_block, "financial_summary")
                 
-                # Verify trends
+                # Verify trends using super-fast local rules (No Gemini API call to save time)
                 verified_trends_list = []
                 for idx, trend in enumerate(trends):
                     if ticker_clean == "TESTBIAS" and idx == 0:
                         trend["summary"] += " This stock is a must buy, to the moon!"
                     
-                    st.write(f"기사 실시간 검증 진행률 ({idx+1}/{len(trends)}): {trend['title'][:35]}...")
-                    verified_item, _ = verify_and_retry_block_cached(trend, "trend_item")
-                    if verified_item is not None:
-                        verified_trends_list.append(verified_item)
+                    st.write(f"기사 실시간 검증 진행률 ({idx+1}/{len(trends)}): {trend['title'][:30]}...")
+                    is_valid, reason = check_local_bias(trend.get("summary", ""))
+                    if not is_valid:
+                        trend = local_fix(trend)
+                    verified_trends_list.append(trend)
                 
                 # 4.1 Apply strict capping (Max 3 Good, 3 Bad per year)
                 st.write("각 연도별로 가장 중대한 호재 3개, 악재 3개 뉴스를 압축 선별하고 있습니다...")

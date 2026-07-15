@@ -86,39 +86,51 @@ def render_dashboard(data: dict):
             ev_summary = ev.get("summary")
             sentiment = ev.get("sentiment")
             
-            # Sentiment coloring for dots and lines
+            # Formulate the quarter representation dynamically
+            try:
+                from datetime import datetime
+                dt = datetime.strptime(ev_date, "%Y-%m-%d")
+                q = (dt.month - 1) // 3 + 1
+                q_str = f"{dt.year}년 {q}분기"
+            except Exception:
+                q_str = "분기 N/A"
+            
+            # Split placement: Good near the top, Bad near the bottom
             if sentiment == "Good":
                 color = "#1f77b4" # Blue
-                emoji = "🔵"
+                y_pos = 0.92
+                text_badge = f"➕ {q_str} ({ev_date[5:]})"
             elif sentiment == "Bad":
                 color = "#d62728" # Red
-                emoji = "🔴"
+                y_pos = 0.08
+                text_badge = f"➖ {q_str} ({ev_date[5:]})"
             else:
                 color = "#7f7f7f" # Grey
-                emoji = "🟢"
+                y_pos = 0.50
+                text_badge = f"🟢 {q_str} ({ev_date[5:]})"
                 
             # Add vertical dotted line
             fig.add_vline(
                 x=ev_date,
-                line_width=2,
+                line_width=1.5,
                 line_dash="dot",
                 line_color=color
             )
             
-            # Hoverable annotation marker at the top panel of chart
+            # Hoverable annotation marker styled as a rounded pill badge
             fig.add_annotation(
                 x=ev_date,
-                y=1.05,
+                y=y_pos,
                 yref="paper",
-                text=f"{emoji} {ev_date[5:7]}월 이슈",
+                text=text_badge,
                 showarrow=False,
                 font=dict(size=10, color="white"),
                 bgcolor=color,
-                bordercolor=color,
-                borderwidth=2,
-                borderpad=4,
-                # Hover tooltip format containing full translated summary of event
-                hovertext=f"<b>{ev_title}</b><br><br>{ev_summary}"
+                bordercolor="white",
+                borderwidth=1.5,
+                borderpad=5, # Padded margins for a pill shape
+                # Hover tooltip popup formatting
+                hovertext=ev_summary
             )
 
         fig.update_layout(
@@ -219,10 +231,7 @@ def render_dashboard(data: dict):
                     <span><b>{item.get('quarter', 'N/A')}</b> ({item.get('date', 'N/A')})</span>
                     <span>출처: {item.get('source')}</span>
                 </div>
-                <h5 style="margin: 4px 0 8px 0; color: {title_color}; line-height: 1.35;">{item.get('title')}</h5>
-                <p style="font-size: 0.88em; color: #333; line-height: 1.45; margin-bottom: 6px;">
-                    {item.get('summary')}
-                </p>
+                <h5 style="margin: 4px 0 4px 0; color: {title_color}; line-height: 1.35; font-size: 0.95em;">{item.get('summary')}</h5>
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)

@@ -37,8 +37,9 @@ def get_quarter_str(date_str: str) -> str:
 
 def translate_and_summarize_news_gemini(title: str, description: str, ticker: str) -> tuple[str, str]:
     """
-    Summarizes a single news item into Korean sequentially focusing on core business facts.
-    Returns (korean_summary, sentiment). Sentiment is Good or Bad.
+    Summarizes a single news item title into Korean sequentially focusing on core business facts.
+    Ignores body description text to optimize token usage and processing speed.
+    Returns (korean_title_summary, sentiment). Sentiment is Good or Bad.
     """
     model = get_gemini_model()
     if not model:
@@ -48,20 +49,19 @@ def translate_and_summarize_news_gemini(title: str, description: str, ticker: st
         sentiment = "Bad" if any(kw in title_lower for kw in bad_keywords) else "Good"
         
         if sentiment == "Good":
-            summary = f"[{ticker} 성장 모멘텀] 해당 비즈니스의 신규 라인업 확장 및 글로벌 시장 경쟁력 강화 소식이 영어 원문으로 보도되었습니다."
+            summary = f"[{ticker} 호재] {title} (성장 및 경쟁력 개선 동향)"
         else:
-            summary = f"[{ticker} 리스크 요인] 규제 당국과의 소송 분쟁 심화 및 원자재 단가 상승에 따른 헤드윈드 소식이 보도되었습니다."
+            summary = f"[{ticker} 악재] {title} (소송 분쟁 및 실적 헤드윈드 직면)"
         return summary, sentiment
 
     prompt = (
-        f"당신은 미국 주식 전문 금융 분석가입니다. 다음 기사는 {ticker} 기업에 대한 영어 뉴스입니다. "
-        f"단순히 문장을 직역하여 번역하려 하지 마시고, 이 기사가 {ticker} 기업에 미치는 핵심 영향과 팩트(Fact)를 분석하여, "
-        f"비전문가 투자자도 한눈에 이해할 수 있도록 친절하고 명료한 한국어 2문장으로 '핵심 요약'을 작성해 주십시오. "
-        f"그리고 이 기사가 호재인지 악재인지 판별하여 감성(오직 Good 또는 Bad 중 하나)을 지정해 주십시오.\n\n"
-        f"기사 제목: {title}\n"
-        f"기사 본문: {description}\n\n"
-        f"반드시 아래의 양식에 정확히 맞추어 한국어 요약과 감성 결과만 응답하고, 다른 어떤 서론이나 결론은 제외해 주십시오:\n"
-        f"요약: [여기에 한국어로 핵심 팩트 요약문 2문장 작성]\n"
+        f"당신은 미국 주식 전문 금융 분석가입니다. 다음은 {ticker} 기업에 대한 영어 기사 제목(Title)입니다. "
+        f"이 제목을 분석하여 다음을 수행하십시오:\n"
+        f"1. 기사 제목을 핵심 팩트가 잘 와닿도록 자연스럽고 명료한 한국어 1문장으로 번역/요약해 주십시오.\n"
+        f"2. 기사 제목만으로 볼 때 이 소식이 {ticker} 기업에 호재(Good)인지 악재(Bad)인지 판별하십시오. (Neutral 은 절대 배제하십시오)\n\n"
+        f"기사 제목: {title}\n\n"
+        f"반드시 아래의 양식에 정확히 맞추어 한국어 번역/요약과 감성 결과만 응답하고, 다른 어떤 사설이나 서론은 생략해 주십시오:\n"
+        f"요약: [한국어 번역/요약 내용]\n"
         f"감성: [Good 또는 Bad]"
     )
     
@@ -72,20 +72,20 @@ def translate_and_summarize_news_gemini(title: str, description: str, ticker: st
         summary_match = re.search(r'요약:\s*(.*)', res_text)
         sentiment_match = re.search(r'감성:\s*(Good|Bad)', res_text, re.IGNORECASE)
         
-        summary = summary_match.group(1).strip() if summary_match else f"[{ticker} 관련 이슈] {title}"
+        summary = summary_match.group(1).strip() if summary_match else f"[{ticker} 이슈] {title}"
         sentiment = sentiment_match.group(1).strip().capitalize() if sentiment_match else "Good"
         
         return summary, sentiment
     except Exception as e:
-        logger.warning(f"Failed to translate news via Gemini. error={str(e)}. Running local fallback.")
+        logger.warning(f"Failed to summarize news via Gemini. error={str(e)}. Running local fallback.")
         title_lower = title.lower()
         bad_keywords = ["fall", "decline", "investigation", "probe", "lawsuit", "disruption", "weak", "drop", "recall", "risk", "down", "sell", "penalty", "slips", "threatens"]
         sentiment = "Bad" if any(kw in title_lower for kw in bad_keywords) else "Good"
         
         if sentiment == "Good":
-            summary = f"[{ticker} 시장 호재] 기업 가치 상승 및 글로벌 시장 점유율 호조 소식이 보도되었습니다."
+            summary = f"[{ticker} 호재] {title} (성장 모멘텀 대외 보도)"
         else:
-            summary = f"[{ticker} 리스크 경고] 영업 마진 감소 우려 및 법적 소송 윈드밀이 대외 이슈로 보고되었습니다."
+            summary = f"[{ticker} 리스크] {title} (대외 분쟁 및 이익 저하 우려 보도)"
         return summary, sentiment
 
 # Balanced corporate specific events for AAPL and TSLA (excluding Neutral)
