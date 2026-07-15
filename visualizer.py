@@ -96,16 +96,19 @@ def render_dashboard(data: dict):
                 q_str = "분기 N/A"
             
             # Split placement: Good near the top, Bad near the bottom
+            # Capsular styling: dark background capsule with neon-tinted text
+            bg_color = "#12161c"
+            border_color = "#1c212a"
             if sentiment == "Good":
-                color = "#0ecb81" # Binance Trading Green
+                color = "#0ecb81" # Neon green text
                 y_pos = 0.92
                 text_badge = f"➕ {q_str} ({ev_date[5:]})"
             elif sentiment == "Bad":
-                color = "#f6465d" # Binance Trading Red
+                color = "#f6465d" # Neon red text
                 y_pos = 0.08
                 text_badge = f"➖ {q_str} ({ev_date[5:]})"
             else:
-                color = "#707a8a" # Binance Muted Gray
+                color = "#707a8a" # Muted gray text
                 y_pos = 0.50
                 text_badge = f"🟢 {q_str} ({ev_date[5:]})"
                 
@@ -124,12 +127,11 @@ def render_dashboard(data: dict):
                 yref="paper",
                 text=text_badge,
                 showarrow=False,
-                font=dict(size=10, color="white"),
-                bgcolor=color,
-                bordercolor="white",
-                borderwidth=1.5,
-                borderpad=5, # Padded margins for a pill shape
-                # Hover tooltip popup formatting
+                font=dict(size=10, color=color, weight="bold"),
+                bgcolor=bg_color,
+                bordercolor=border_color,
+                borderwidth=1,
+                borderpad=6, # Pill padding
                 hovertext=ev_summary
             )
 
@@ -137,14 +139,14 @@ def render_dashboard(data: dict):
             xaxis=dict(
                 title="공시 종료일 (Period End Date)", 
                 type='date',
-                gridcolor="#2b3139",
-                linecolor="#2b3139",
+                gridcolor="#1c212a",
+                linecolor="#1c212a",
                 tickfont=dict(color="#eaecef")
             ),
             yaxis=dict(
                 title="금액 (십억 달러, $B)",
-                gridcolor="#2b3139",
-                linecolor="#2b3139",
+                gridcolor="#1c212a",
+                linecolor="#1c212a",
                 tickfont=dict(color="#eaecef")
             ),
             legend=dict(
@@ -158,8 +160,8 @@ def render_dashboard(data: dict):
             margin=dict(l=40, r=40, t=60, b=40),
             hovermode="x unified",
             template="plotly_dark",
-            paper_bgcolor="#0b0e11",
-            plot_bgcolor="#0b0e11"
+            paper_bgcolor="#080a0f",
+            plot_bgcolor="#080a0f"
         )
         st.plotly_chart(fig, use_container_width=True)
         
@@ -238,21 +240,29 @@ def render_dashboard(data: dict):
             return
 
         for item in news_list:
+            # Subtle dark-tinted badge capsule styling
+            if item.get('sentiment') == "Good":
+                badge_bg = "#112217"
+                badge_fg = "#0ecb81"
+                sentiment_label = "Good"
+            else:
+                badge_bg = "#291415"
+                badge_fg = "#f6465d"
+                sentiment_label = "Bad"
+                
             card_html = f"""
             <div style="
-                border: 1px solid #2b3139;
-                border-left: 4px solid {title_color};
-                border-radius: 12px;
+                border: 1px solid #1c212a;
+                border-radius: 8px;
                 padding: 16px;
                 margin-bottom: 12px;
-                background-color: #1e2329;
-                box-shadow: 2px 2px 8px rgba(0,0,0,0.15);
+                background-color: #12161c;
             ">
-                <div style="display: flex; justify-content: space-between; font-size: 0.78em; color: #707a8a; margin-bottom: 6px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; font-size: 0.78em; color: #707a8a; margin-bottom: 10px;">
                     <span style="color: #707a8a !important;"><b>{item.get('quarter', 'N/A')}</b> ({item.get('date', 'N/A')})</span>
-                    <span style="color: #707a8a !important;">출처: {item.get('source')}</span>
+                    <span style="background-color: {badge_bg}; color: {badge_fg} !important; border-radius: 9999px; padding: 2px 10px; font-weight: 600; font-size: 0.82em; letter-spacing: 0.3px;">{sentiment_label}</span>
                 </div>
-                <h5 style="margin: 4px 0 4px 0; color: #eaecef !important; line-height: 1.4; font-size: 0.95em; font-weight: 500;">{item.get('summary')}</h5>
+                <h5 style="margin: 4px 0 4px 0; color: #eaecef !important; line-height: 1.45; font-size: 0.95em; font-weight: 500; letter-spacing: -0.2px;">{item.get('summary')}</h5>
             </div>
             """
             st.markdown(card_html, unsafe_allow_html=True)
