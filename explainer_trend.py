@@ -5,6 +5,7 @@ import random
 import uuid
 import re
 import time
+import streamlit as st
 import google.generativeai as genai
 from logger import logger
 from datetime import datetime
@@ -260,6 +261,7 @@ def fetch_yahoo_finance_rss(ticker: str) -> list[dict]:
         logger.warning(f"Failed to fetch RSS feed: {str(e)}.")
         return []
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_trend_analysis(ticker: str, years: list[int]) -> list[dict]:
     """
     Fetches RSS news, translates them sequentially via Gemini with individual 1.2s sleeps,

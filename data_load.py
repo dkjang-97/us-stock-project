@@ -1,5 +1,6 @@
 import os
 import requests
+import streamlit as st
 from datetime import datetime
 from logger import logger
 
@@ -51,6 +52,7 @@ def extract_quarterly_metric(facts: dict, metric_candidates: list[str]) -> dict:
                 
     return metric_data
 
+@st.cache_data(ttl=3600, show_spinner=False)
 def get_financial_data_3years(ticker: str, cik: str) -> dict:
     """
     Retrieves revenue and net income time series for the last 12 quarters (3 years of data points).
