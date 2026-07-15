@@ -1,0 +1,9 @@
+pillow>=10.4.0
+fastapi
+uvicorn
+streamlit
+requests
+python-dotenv
+google-generativeai
+pandas
+plotly
