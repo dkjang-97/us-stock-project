@@ -10,8 +10,8 @@ def get_gemini_model():
         return None
     try:
         genai.configure(api_key=api_key)
-        # Using gemini-1.5-flash for fast and cost-effective analysis
-        model = genai.GenerativeModel("gemini-1.5-flash")
+        # Using gemini-3.5-flash as specified by user
+        model = genai.GenerativeModel("gemini-3.5-flash")
         return model
     except Exception as e:
         logger.error(f"Gemini 모델 초기화 실패. error={str(e)}")

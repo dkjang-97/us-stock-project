@@ -19,7 +19,7 @@ def get_gemini_model():
         return None
     try:
         genai.configure(api_key=api_key)
-        return genai.GenerativeModel("gemini-1.5-flash")
+        return genai.GenerativeModel("gemini-3.5-flash")
     except Exception:
         return None
 
